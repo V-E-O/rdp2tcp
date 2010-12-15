@@ -1,6 +1,6 @@
-CC=colorgcc
-CFLAGS=-Wall -g \
-		 -DDEBUG
+CC=gcc
+CFLAGS=-Wall -g 
+#		 -DDEBUG
 OBJS=	iobuf.o print.o msgparser.o nethelper.o netaddr.o
 
 all: $(OBJS)
