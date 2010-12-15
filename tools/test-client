@@ -1,0 +1,211 @@
+#!/usr/bin/env python
+from rdp2tcp import rdp2tcp, R2TException
+from sys import exit
+import time
+import socket
+import os
+
+def tcp_sock(local_port):
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+	s.connect(('127.0.0.1', local_port))
+	s.settimeout(30)
+	return s
+
+def cmd(cmdline):
+	os.system('xterm -e %s &' % cmdline)
+
+###############################################################
+# send shit to controller -> expect connection closed
+def test_controller_proto():
+
+	badmsgs = [ \
+			'\n', \
+			' l\n', \
+			't\n', 'r\n', 's\n', 'x\n', \
+			's a 0\n', \
+			's a -1\n', \
+			's a 65536\n', \
+			's a 65535A\n', \
+			'\x00\n' \
+	]
+
+	print 'controller protocol tests'
+	for msg in badmsgs:
+
+		s = tcp_sock(8477)
+		s.sendall(msg)
+		data = s.recv(256)
+		if data != '':
+			print 'error: server didnt closed connection'
+			print '>>> ', repr(msg)
+			print '<<< ', data
+		s.close()
+
+
+
+###############################################################
+# python API test
+def setup_tunnels():
+	print 'tunnels setup'
+	try:
+		r2t = rdp2tcp('127.0.0.1', 8477)
+	except R2TException, e:
+		print e
+		exit(0)
+
+	try:
+		# forward
+		r2t.add_tunnel('t', ('127.0.0.1',4444),('127.0.0.1',4444))
+		# forward
+		r2t.add_tunnel('t', ('127.0.0.1',4445),('127.0.0.1',445))
+		# reverse 
+		r2t.add_tunnel('r', ('127.0.0.1',22),('127.0.0.1',2222))
+		# forward
+		r2t.add_tunnel('t', ('127.0.0.1',2222),('127.0.0.1',2222))
+		# forward
+		r2t.add_tunnel('t', ('::1',2223),('127.0.0.1',2222))
+		# forward
+		r2t.add_tunnel('t', ('localhost',2224),('127.0.0.1',2222))
+		# process
+		r2t.add_tunnel('x', ('127.0.0.1',4446),('cmd.exe',0))
+		# socks5
+		r2t.add_tunnel('s', ('127.0.0.1',65480),('',0))
+
+		print r2t.info()
+
+	except R2TException, e:
+		print e
+
+	r2t.close()
+
+###############################################################
+# test behaviour of buggy tunnel clients
+def test_connect_and_close():
+	targets = [ \
+			8477, \
+			4444, \
+			4445, \
+			2222, \
+			4446, \
+			65480 \
+	]
+
+	print 'connect() + close() tests'
+	for port in targets:
+		s = tcp_sock(port)
+		s.close()
+
+	for port in targets:
+		print 'connect(%i) + sleep(2) + close() tests' % port
+		s = tcp_sock(port)
+		time.sleep(2)
+		s.close()
+
+	print 'connect() + send(garbage) + close() tests'
+	garbage = ''.join(chr(i) for i in xrange(0x100))
+	for port in targets:
+		s = tcp_sock(port)
+		s.sendall(garbage)
+		s.close()
+
+###############################################################
+# test ssh tunnel by boucing on remote host
+# use forward tunnel + reverse tunnel
+# server talks first
+def test_ssh():
+
+	print '1 SSH test'
+	cmd('ssh -p 2222 127.0.0.1 "ls /usr/lib | less"')
+	raw_input('Press Key when SSH is closed')
+	print '2 SSH test'
+	cmd('ssh -p 2222 127.0.0.1 "ls /usr/lib | less"')
+	cmd('ssh -p 2222 127.0.0.1 "ls /usr/lib | less"')
+	raw_input('Press Key when both SSH are closed')
+
+
+###############################################################
+# test forward tunnel using "dir c:\windows\system32"
+# server talks first
+def test_cmd():
+	print 'cmd.exe test'
+	cmd('telnet 127.0.0.1 4446')
+	raw_input('Press Key when cmd.exe is closed')
+
+###############################################################
+# test forward tunnel using smbclient
+# client talks first
+def test_smb():
+	print 'smbclient test'
+	cmd('smbclient -U Administrator -p 4445 //127.0.0.1/c$')
+	raw_input('Press Key when smbclient is closed')
+
+###############################################################
+# test socks5 protocol errors
+def test_socks5():
+
+	# expect connection closed
+	badmsgs = [ '\x00', '\x04', '\x06', '\x05\x00' ]
+
+	print 'socks5 protocol tests 1'
+	for msg in badmsgs:
+
+		s = tcp_sock(65480)
+		s.sendall(msg)
+		try:
+			data = s.recv(256)
+			if data != '' and da:
+				print 'error: socket5 server didnt closed connection'
+				print '>>> ', repr(msg)
+				print '<<< ', repr(data)
+		except socket.error, e:
+			if e[0] != 104:
+				print 'error: %s' % str(e)
+				print '>>> ', repr(msg)
+		s.close()
+	
+	# expect socks5 error
+	badmsgs = [ \
+			'\x05\x01\x00\x00', \
+			'\x05\x01\x00\x05\x00', \
+			'\x05\x01\x00\x05\x02', \
+			'\x05\x01\x00\x05\x03', \
+			'\x05\x01\x00\x05\x00', \
+			'\x05\x01\x00\x05\x01\x01', \
+			'\x05\x01\x00\x05\x01\x00\x00', \
+			'\x05\x01\x00\x05\x01\x00\x02', \
+			'\x05\x01\x00\x05\x01\x00\xff', \
+			'\x05\x01\x00\x05\x01\x00\x03\x00', \
+			'\x05\x01\x00\x05\x01\x00\x03\x00\x41', \
+	]
+
+	print 'socks5 protocol tests 2'
+	for msg in badmsgs:
+
+		s = tcp_sock(65480)
+		s.sendall(msg)
+		try:
+			data = s.recv(256)
+			if len(data) != 2 or data[0] != '\x05':
+				print 'error: socket5 server didnt closed connection'
+				print '>>> ', repr(msg)
+				print '<<< ', repr(data)
+		except socket.error, e:
+			if e[0] != 104:
+				print 'error: %s' % str(e)
+				print '>>> ', repr(msg)
+		s.close()
+
+if __name__ == '__main__':
+
+	socket.setdefaulttimeout(5)
+
+	setup_tunnels()
+	if 1:
+		#test_controller_proto()
+		#test_controller_proto()
+		test_connect_and_close()
+		#test_socks5()
+		#test_ssh()
+		#test_cmd()
+		#test_smb()
+	pass

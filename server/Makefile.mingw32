@@ -1,0 +1,31 @@
+BIN=rdp2tcp.exe
+CC=i586-mingw32msvc-gcc
+CFLAGS=-Wall -g \
+		 -D_WIN32_WINNT=0x0501 \
+		 -I../common
+
+# -D_WIN32_WINNT=0x0501
+# -D_WIN32_WINNT=0x0501 -DDEBUG
+
+LDFLAGS=-lwtsapi32 -lws2_32
+OBJS=	../common/iobuf.o \
+	../common/print.o \
+	../common/msgparser.o \
+	../common/nethelper.o \
+	../common/netaddr.o \
+	errors.o aio.o events.o \
+	tunnel.o channel.o process.o commands.o main.o
+
+all: clean_common $(BIN)
+
+clean_common:
+	$(MAKE) -C ../common clean
+
+$(BIN): $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS) 
+
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+clean:
+	rm -f $(OBJS) $(BIN)

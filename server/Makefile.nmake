@@ -1,0 +1,23 @@
+BIN=rdp2tcp.exe
+CFLAGS=/nologo /D_CRT_SECURE_NO_WARNINGS /W3 /I..\common
+#CFLAGS=/nologo /DEBUG /D_CRT_SECURE_NO_WARNINGS /W3 /I..\common
+LDFLAGS=/nologo
+#LDFLAGS=/nologo /DEBUG
+
+LIBS= wtsapi32.lib ws2_32.lib
+OBJS=   ..\common\iobuf.obj \
+        ..\common\print.obj \
+        ..\common\msgparser.obj \
+        ..\common\nethelper.obj \
+        ..\common\netaddr.obj \
+        errors.obj aio.obj events.obj \
+       tunnel.obj channel.obj process.obj commands.obj main.obj
+
+all: $(BIN)
+
+$(BIN): $(OBJS)
+	link /out:$(BIN) $(LDFLAGS) *.obj $(LIBS)
+
+clean:
+	erase $(OBJS) $(BIN)
+

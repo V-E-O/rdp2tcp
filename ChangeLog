@@ -1,0 +1,18 @@
+Version 0.1 public release (OSSIR)
+	+ SOCKS5 minimal support
+	+ doxygenification
+	+ stricter controller protocol
+	+ added X11 scripting tool (rdpupload)
+	+ added rdp2tcp test script (test-client)
+	+ dozen of bug fixes
+
+Version 0.0.3
+	+ tcp reverse connect
+	+ process stdin/stdout forwarding
+	+ IPv6 support
+	+ dozen of bug fixes
+
+Version 0.0.2 almost reliable tunneling ...
+	+ added controller listener to add tunnel on-demand
+
+Version 0.0.1 SSTIC rump nuked edition :)

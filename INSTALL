@@ -1,0 +1,30 @@
+
+-[ prerequisites ]-----------------------------
+
+ - rdesktop dependencies
+ - a compiler for the rdesktop host 
+ - a compiler for Windows
+
+-[ steps ]-------------------------------------
+
+1) get rdesktop source code
+   http://www.rdesktop.org/#download
+
+2) get rdesktop out-of-process virtual channel patch (oop.patch)
+   http://sf.net/tracker/index.php?func=detail&aid=1472969&group_id=24366&atid=381349
+
+3) apply rdesktop patch
+
+4) compile & install patched rdesktop
+
+5) compile client with "make client"
+
+6) compile server
+
+   case 1: cross-compilation from UNIX, use mingw32
+           you may have to fix the compiler path in server/Makefile.mingw32
+           run "make server-mingw32"
+
+   case 2: compilation from Windows, use whatever you want ..
+           ex: "nmake /nologo /f Makefile.nmake"
+

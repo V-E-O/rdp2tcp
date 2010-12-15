@@ -1,0 +1,238 @@
+#!/usr/bin/env python
+#
+# rdpupload 0.1     -- nicolas.collignon@hsc.fr
+#
+# upload binary file to rdesktop by simulating rdesktop keyboard input
+# a.k.a "rdesktop scripting through X11 automation"
+#
+# this tool can be used to upload a binary on a Terminal Server when
+# file sharing or clipboard support (through RDP) is blocked by the
+# ecurity policy.
+#
+# X11 automation is performed with xte scripts (generated with -x).
+# they are supposed to be run with the xte program from xautomation.
+# http://hoopajoo.net/projects/xautomation.html
+#
+# supported encoding:
+#
+#
+#
+
+from sys import stderr
+from os import path
+import string
+
+# debug.com encoder
+def encode_debug(in_data, out_name):
+
+	i, j, line = 0, 256, ''
+	out = 'n %s\nr cx\n%x\nf 0100 ffff 00\n' % (out_name, len(in_data))
+
+	for c in in_data:
+
+		byte = ord(c)
+		if byte != 0:
+			i += 1
+			if not line: line = 'e %0x' % j
+			line += ' %02x' % byte
+
+		elif line:
+			out += line + '\n'
+			i, line = 0, ''
+
+		j += 1
+
+		if i == 20:
+			out += line + '\n'
+			i, line = 0, ''
+	
+	return out
+
+# VB encoder
+def encode_vb(in_data, out_name):
+	off, size = 0, len(in_data)
+	out = """With CreateObject("ADODB.Stream")
+.Type=2
+.Open
+"""
+#	out = """Dim x
+#Set x=CreateObject("ADODB.Stream")
+#x.Type=2
+#x.Open
+#"""
+	off, size = 0, len(in_data)
+
+	while off < size:
+
+		avail = min(size - off, 32)
+		out += '.WriteText ' 
+		#out += 'x.WriteText ' 
+		out += '&'.join('chr(%i)' % ord(b) for b in in_data[off:off+avail])
+		out += '\n'
+
+		off += avail
+
+	return out + '.SaveToFile "%s",2\n.Close\nEnd With\n' % out_name
+	#return out + 'x.SaveToFile "%s",2\n' % out_name
+
+# xte encoder
+def encode_xte(in_data, out, focus_delay=5.0, ksleep=1.0):
+
+	def xsleep(t, use_coeff=True):
+		out.write('usleep %i\n' % int(1000000*t*(use_coeff and ksleep or 1)))
+
+	word_charset = string.letters + string.digits + string.punctuation
+	byte2sym = {' ':'space', '\t':'Tab', '\n':'Return'}
+	word = ''
+
+	xsleep(focus_delay, False)
+
+	for byte in in_data:
+
+		if byte in word_charset:
+			word += byte
+			if len(word) > 6:
+				xsleep(0.080)
+				out.write('str %s\n' % word)
+				word = ''
+
+		elif byte == '\r':
+			continue
+
+		else:
+			if word:
+				if len(word) > 4: xsleep(0.080)
+				out.write('str %s\n' % word)
+				word = ''
+
+			if not byte2sym.has_key(byte):
+				stderr.write('error: byte 0x%x not allowed' % byte)
+				return
+
+			xsleep(0.050)
+			out.write('key %s\n' % byte2sym[byte])
+	
+	if word:
+		out.write('str %s\n' % word)
+
+if __name__ == '__main__':
+	from sys import argv, exit, stdin, stdout
+	from getopt import getopt, GetoptError
+	from os import path
+
+	def usage():
+		stderr.write("""
+usage: %s [-x] [-f format] [-t delay] [-s coeff] <infile> <outfile>
+
+ -x,--xte           generate xte script
+
+ -f,--format fmt    input encoding (default is no encoding)
+                       debug  -> generate debug.com script
+                       vb     -> generate VB script
+                       base64 -> generate base64 encoded payload
+
+ -t,--delay float   delay before starting input simulation (default is 5 sec)
+ -s,--sleep float   sleep factor (default is 1.0)
+
+ infile             input file
+
+ outfile            output file (ascii or xte script)
+
+""" % argv[0])
+		exit(0)
+
+	# default config
+
+	xte_output = False
+	fmt = 'raw'
+	start_delay = 5.0
+	sleep_factor = 1.0
+
+	# parse arguments
+
+	argc = len(argv)
+	if argc < 3 or argc > 10:
+		usage()
+
+	try:
+		opts, args = getopt(argv[1:], 'hxf:t:s:', ['xte','format','delay','sleep'])
+	except GetoptError, err:
+		stderr.write('error: %s\n' % str(err))
+		exit(0)
+	
+	if len(args) != 2:
+		usage()
+	
+	for o, a in opts:
+
+		if o in ('-x','--xte'):
+			xte_output = True
+
+		elif o in ('-f','--format'):
+			if a not in ('debug','base64','vb'):
+				stderr.write('error: bad format\n')
+				exit(0)
+			fmt = a
+
+		elif o in ('-t','--delay'):
+			start_delay = float(a)
+			if start_delay <= 0:
+				stderr.write('error: bad start delay')
+				exit(0)
+
+		elif o in ('-s','--sleep'):
+			sleep_factor = float(a)
+			if sleep_factor <= 0:
+				stderr.write('error: bad sleep factor')
+				exit(0)
+
+		else:
+			usage()
+
+	try:
+		if args[0] == '-':
+			fin = stdin
+			out_name = 'outbin'
+		else:
+			fin = open(args[0], 'rb')
+			out_name = path.basename(args[0]).replace('.','_')
+		
+		if args[1] == '-':
+			fout = stdout
+		else:
+			fout = open(args[1], 'wb')
+
+	except IOError, e:
+		stderr.write(str(e)+'\n')
+	
+	# read input
+
+	data_in = fin.read()
+	fin.close()
+
+	# encode input
+
+	if fmt == 'raw':
+		data_out = data_in
+
+	elif fmt == 'debug':
+		if len(data_in) > 65280:
+			stderr.write('error: input file bigger than 65280 bytes\n')
+			exit(0)
+
+		data_out = encode_debug(data_in, out_name)
+
+	elif fmt == 'base64':
+		data_out = data_in.encode('base64')
+	
+	elif fmt == 'vb':
+		data_out = encode_vb(data_in, out_name)
+
+	# encode output
+
+	if xte_output:
+		encode_xte(data_out, fout, start_delay, sleep_factor)
+	else:
+		fout.write(data_out)
+
+	fout.close()
