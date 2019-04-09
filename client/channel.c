@@ -113,9 +113,10 @@ int channel_read_event(void)
 	if (!ptr)
 		return error("failed to reserve channel memory");
 
+  avail = msglen;
 	do {
-		r = read(RDP_FD_IN, ptr, msglen);
-		//trace_chan("r=%u/%u", r, msglen);
+		r = read(RDP_FD_IN, ptr, avail);
+		//trace_chan("r=%u/%u", r, avail);
 		if (r < 0)
 			goto chan_read_err;
 
@@ -130,10 +131,10 @@ int channel_read_event(void)
 		print_xfer("chan", 'r', (unsigned int)r);
 
 		ptr += r;
-		msglen -= r;
-	} while (msglen > 0);
+		avail -= r;
+	} while (avail > 0);
 
-	iobuf_commit(&vc.ibuf, r);
+	iobuf_commit(&vc.ibuf, msglen);
 	commands_parse(&vc.ibuf);
 	time(&vc.ts);
 
