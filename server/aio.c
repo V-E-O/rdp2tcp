@@ -110,8 +110,13 @@ int aio_read(
 	if (rio->pending) {
 		rio->pending = 0;
 		if (!GetOverlappedResult(fd, &rio->io, &len, FALSE)) {
-			ResetEvent(rio->io.hEvent);
-			return syserror("GetOverlappedResult");
+			if (GetLastError() == ERROR_MORE_DATA) {
+				// Not an error
+				info(0, "GetOverlappedResult: ERROR_MORE_DATA (len=%d)", len);
+			} else {
+				ResetEvent(rio->io.hEvent);
+				return syserror("GetOverlappedResult");
+			}
 		}
 		
 		if (!len) {
