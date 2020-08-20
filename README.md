@@ -21,7 +21,9 @@ xfreerdp /u:[USER] /p:[PASSWORD] /v:[HOST] /rdp2tcp:[RDP2TCP FOLDER]/client/rdp2
 
 #### on remote host windows 
 
-run rdp2tcp.exe (it is not necessary to run with administrator privilege)
+Upload [RDP2TCP FOLDER]/server/rdp2tcp.exe file to remote host
+
+open cmd and run rdp2tcp.exe (it is not necessary to run with administrator privilege)
 
 ### Controller:
 
