@@ -37,7 +37,7 @@ sudo dpkg -i mingw32*.deb
 sudo apt-get install -f
 ```
 
-(more info)[http://rdp2tcp.sourceforge.net/]
+read more: http://rdp2tcp.sourceforge.net/
 
 ### docs
 
