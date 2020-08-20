@@ -1,5 +1,7 @@
 # rdp2tcp 0.1 (open tcp tunnel through remote desktop connection)
 
+ [Diagram](http://i.imgur.com/7xTFXeq.png)
+
 ## clone
 ```sh
 git clone https://github.com/gerardo-junior/rdp2tcp.git [RDP2TCP FOLDER]
