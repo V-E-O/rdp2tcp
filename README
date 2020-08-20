@@ -1,4 +1,45 @@
+# rdp2tcp 0.1 (rdp port forwarding)
 
+## build
+```sh
+make client
+make server-mingw32
+```
+#### on local host linux
+
+```sh
+xfreerdp /u:[USER] /p:[PASSWORD] /v:[HOST] /rdp2tcp:[RDP2TCP FOLDER]/client/rdp2tcp 
+```
+
+#### on remote host windows 
+
+run rdp2tcp.exe (it is not necessary to run with administrator privilege)
+
+### Controller:
+
+after you see the message "virtual channel connected" on your terminal. you can perform port forwarding using the tool: [RDP2TCP FOLDER]/tools/rdp2tcp.py
+
+> ./tools/rdp2tcp.py add forward [local addr] [local port] [remote addr] [remote port]
+
+```sh
+./tools/rdp2tcp.py add forward 127.0.0.1 10001 127.0.0.1 2222
+ssh 127.0.0.1 -p 10001
+```
+
+
+#### if you have problems in the build with 32-bit compiler try:
+
+```sh
+wget http://archive.ubuntu.com/ubuntu/pool/universe/m/mingw32/mingw32_4.2.1.dfsg-2ubuntu1_amd64.deb;
+wget http://archive.ubuntu.com/ubuntu/pool/universe/m/mingw32-binutils/mingw32-binutils_2.20-0.2ubuntu1_amd64.deb;
+wget http://archive.ubuntu.com/ubuntu/pool/universe/m/mingw32-runtime/mingw32-runtime_3.15.2-0ubuntu1_all.deb;
+sudo dpkg -i mingw32*.deb
+sudo apt-get install -f
+```
+
+[more info)(http://rdp2tcp.sourceforge.net/)
+
+### docs
 
         rdp2tcp 0.1 
 
