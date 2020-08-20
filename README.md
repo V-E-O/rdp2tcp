@@ -1,4 +1,4 @@
-# rdp2tcp 0.1 (open tcp tunnel through remote desktop connection)
+# rdp2tcp 0.1 (open tcp tunnel through rdp)
 
  ![Diagram](http://i.imgur.com/7xTFXeq.png)
 
