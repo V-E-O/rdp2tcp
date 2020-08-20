@@ -1,4 +1,4 @@
-# rdp2tcp 0.1 (rdp port forwarding)
+# rdp2tcp 0.1 (open tcp tunnel through remote desktop connection)
 
 ## clone
 ```sh
