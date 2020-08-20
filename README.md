@@ -1,6 +1,6 @@
 # rdp2tcp 0.1 (open tcp tunnel through remote desktop connection)
 
- [Diagram](http://i.imgur.com/7xTFXeq.png)
+ ![Diagram](http://i.imgur.com/7xTFXeq.png)
 
 ## clone
 ```sh
