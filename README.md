@@ -27,7 +27,9 @@ after you see the message "virtual channel connected" on your terminal. you can 
 
 > ./tools/rdp2tcp.py add forward [local addr] [local port] [remote addr] [remote port]
 
+
 ```sh
+./tools/rdp2tcp.py help # for more info
 ./tools/rdp2tcp.py add forward 127.0.0.1 10001 127.0.0.1 2222
 ssh 127.0.0.1 -p 10001
 ```
