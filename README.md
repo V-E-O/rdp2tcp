@@ -1,5 +1,11 @@
 # rdp2tcp 0.1 (rdp port forwarding)
 
+## clone
+```sh
+git clone https://github.com/gerardo-junior/rdp2tcp.git [RDP2TCP FOLDER]
+cd [RDP2TCP FOLDER]
+```
+
 ## build
 ```sh
 make client
