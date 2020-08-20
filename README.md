@@ -47,10 +47,8 @@ sudo apt-get install -f
 
 read more: http://rdp2tcp.sourceforge.net/
 
-### docs
-
-        rdp2tcp 0.1 
-
+### how this works:
+<pre>
 rdp2tcp is a tunneling tool on top of remote desktop protocol (RDP).
 It uses RDP virtual channel capabilities to multiplex several ports
 forwarding over an already established rdesktop session.
@@ -194,3 +192,4 @@ xte (http://hoopajoo.net/projects/xautomation.html) run the X11 script.
        6: tunnel management
        7: SOCKS5 protocol
 
+</pre>
