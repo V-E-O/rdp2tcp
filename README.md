@@ -34,8 +34,8 @@ after you see the message "virtual channel connected" on your terminal. you can 
 
 ```sh
 ./tools/rdp2tcp.py help # for more info
-./tools/rdp2tcp.py add forward 127.0.0.1 10001 127.0.0.1 2222
-ssh 127.0.0.1 -p 10001
+./tools/rdp2tcp.py add forward 127.0.0.1 10001 127.0.0.1 8000
+curl 127.0.0.1:10001
 ```
 
 
