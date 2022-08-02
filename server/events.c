@@ -130,6 +130,7 @@ int event_wait(tunnel_t **out_tun, HANDLE *out_h)
 
 	off = (channel_write_pending() ? 0 : 1);
 
+	trace_evt("WaitForMultipleObjects: events_count=%i, offset=%i, events: %x", events_count, off, all_events[off]);
 	ret = WaitForMultipleObjects(events_count-off, &all_events[off], FALSE,
 											RDP2TCP_PING_DELAY*1000);
 
