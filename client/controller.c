@@ -150,8 +150,8 @@ static int dump_sockets(netsock_t *cli)
 				ret = controller_answer(cli, "ctrlcli %s", host1);
 				break;
 
-			case NETSOCK_TUNCLI:
-				if (!ns->state != NETSTATE_CONNECTED) {
+			case NETSOCK_TUNCLI: // Tunnel client side connection
+				if (!(ns->state != NETSTATE_CONNECTED)) {
 					ret = controller_answer(cli, "tuncli  %s tid=%hu",
 						host1, ns->tid);
 					break;
