@@ -1,6 +1,6 @@
 BIN=rdp2tcp.exe
 CC=i586-mingw32msvc-gcc
-CFLAGS=-Wall -g \
+BUILD_CFLAGS=-Wall -g \
 		 -D_WIN32_WINNT=0x0501 \
 		 -I../common
 
@@ -25,7 +25,7 @@ $(BIN): $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS) 
 
 %.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(BUILD_CFLAGS) -o $@ -c $<
 
 clean:
 	rm -f $(OBJS) $(BIN)
