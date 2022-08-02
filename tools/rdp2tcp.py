@@ -46,7 +46,7 @@ class rdp2tcp:
 	def __init__(self, host, port):
 		try:
 			s = connect_to(host, port)
-		except socket.error, e:
+		except socket.error as e:
 			raise R2TException(e[1])
 		self.sock = s
 
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	from sys import argv, exit, stdin, stdout
 
 	def usage():
-		print """
+		print("""
 usage: %s [-h host] [-p port] <cmd> [args..]
 
 commands:
@@ -93,17 +93,17 @@ commands:
    add process <lhost> <lport> <command>
    add socks5  <lhost> <lport>
    del <lhost> <lport>
-   sh [args]""" % argv[0]
+   sh [args]""" % argv[0])
 		exit(0)
 
-	
+
 	def popup_telnet(x, type, dst):
 
 		laddr = ('127.0.0.1', randint(1025, 0xffff))
 		try:
-			print x.add_tunnel(type, laddr, dst)
-		except R2TException, e:
-			print 'error:', e
+			print(x.add_tunnel(type, laddr, dst))
+		except R2TException as e:
+			print('error:', e)
 			return
 
 		try:
@@ -113,9 +113,9 @@ commands:
 			stdout.write('\n')
 
 		try:
-			print x.del_tunnel(laddr)
-		except R2TException, e:
-			print 'error:', e
+			print(x.del_tunnel(laddr))
+		except R2TException as e:
+			print('error:', e)
 
 
 	argc = len(argv)
@@ -123,7 +123,7 @@ commands:
 		usage()
 
 	host,port = '127.0.0.1',8477
-	
+
 	i = 1
 	while argv[i].startswith('-'):
 		if argv[i] == '-h':
@@ -138,10 +138,10 @@ commands:
 
 	try:
 		r2t = rdp2tcp(host, port)
-	except R2TException, e:
-		print 'error: %s' % str(e)
+	except R2TException as e:
+		print('error: %s' % str(e))
 		exit(0)
-	
+
 	argc -= i + 1
 	if cmd == 'add':
 		argc -= 1
@@ -162,20 +162,20 @@ commands:
 			usage()
 
 		try:
-			print r2t.add_tunnel(type, src, dst)
-		except R2TException, e:
-			print 'error: %s' % str(e)
+			print(r2t.add_tunnel(type, src, dst))
+		except R2TException as e:
+			print('error: %s' % str(e))
 
 	elif cmd == 'del':
 		if argc != 2: usage()
 
 		try:
-			print r2t.del_tunnel((argv[i+1], int(argv[i+2])))
-		except R2TException, e:
-			print 'error: %s' % str(e)
+			print(r2t.del_tunnel((argv[i+1], int(argv[i+2]))))
+		except R2TException as e:
+			print('error: %s' % str(e))
 
 	elif cmd == 'info':
-		print r2t.info()
+		print(r2t.info())
 
 	elif cmd == 'sh':
 		proc = 'cmd.exe'
@@ -189,4 +189,4 @@ commands:
 		popup_telnet(r2t, 't', (argv[i+1], int(argv[i+2])))
 
 	r2t.close()
-	
+
