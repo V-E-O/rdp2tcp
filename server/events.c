@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -130,7 +130,7 @@ int event_wait(tunnel_t **out_tun, HANDLE *out_h)
 
 	ret = WaitForMultipleObjects(events_count-off, &all_events[off], FALSE,
 											RDP2TCP_PING_DELAY*1000);
-	
+
 	if (ret == WAIT_FAILED) {
 		assert(GetLastError() != ERROR_INVALID_HANDLE);
 		return syserror("WaitForMultipleObjects");
@@ -144,7 +144,7 @@ int event_wait(tunnel_t **out_tun, HANDLE *out_h)
 
 	if (ret == 0)
 		return (off == 0 ? EVT_CHAN_WRITE : EVT_CHAN_READ);
-		
+
 	if ((ret == 1) && (off == 0))
 		return EVT_CHAN_READ;
 
@@ -156,5 +156,3 @@ int event_wait(tunnel_t **out_tun, HANDLE *out_h)
 		*out_h   = all_events[off+ret];
 		return EVT_TUNNEL;
 }
-
-

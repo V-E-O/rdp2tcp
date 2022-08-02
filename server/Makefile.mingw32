@@ -22,7 +22,7 @@ clean_common:
 	$(MAKE) -C ../common clean
 
 $(BIN): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS) 
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(BUILD_CFLAGS) -o $@ -c $<
