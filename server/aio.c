@@ -178,6 +178,11 @@ int aio_read(
 				info(0, "child process has closed pipe");
 				break;
 
+			// There is more data available than what fit into buffer.
+			case ERROR_MORE_DATA:
+				rio->pending = 1;
+				break;
+
 			default:
 				ResetEvent(rio->io.hEvent);
 				return syserror("failed to read");
