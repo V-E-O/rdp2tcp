@@ -31,7 +31,7 @@ static int do_error(const char *func, DWORD err)
 	char *buffer;
 
 	buffer = NULL;
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM
+	if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
 						|FORMAT_MESSAGE_ALLOCATE_BUFFER
 						|FORMAT_MESSAGE_MAX_WIDTH_MASK
 						|FORMAT_MESSAGE_IGNORE_INSERTS,
