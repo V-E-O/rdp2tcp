@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -105,7 +105,7 @@ int tunnel_add(
 
 	rhost_len = strlen(rhost) + 1;
 	ns = netsock_bind(cli, lhost, lport, rhost_len);
-	if (!ns) 
+	if (!ns)
 		return 0; // soft error, no need to kill client
 
 
@@ -154,7 +154,7 @@ int tunnel_add_reverse(
 	lhost_len = strlen(lhost) + 1;
 	rhost_len = strlen(rhost) + 1;
 	ns = netsock_alloc(cli, -1, NULL, lhost_len + rhost_len);
-	if (!ns) 
+	if (!ns)
 		return 0; // soft-error .. maybe hard but dont kill client
 
 	ns->type = NETSOCK_RTUNSRV;
@@ -375,7 +375,7 @@ void tunnel_revconnect_event(
 
 	assert(valid_netsock(srv) && (srv->type == NETSOCK_RTUNSRV));
 	trace_tun("new_id=0x%02x", new_id);
-	
+
 	cli = netsock_connect(srv->u.rtunsrv.lhost, srv->u.rtunsrv.lport);
 	if (cli) {
 		cli->type = NETSOCK_RTUNCLI;
@@ -448,7 +448,7 @@ void tunnels_restart(void)
 	netsock_t *ns, *bak;
 	const char *rhost;
 	unsigned short rport;
-	
+
 	list_for_each_safe(ns, bak, &all_sockets) {
 
 		if (ns->type == NETSOCK_RTUNSRV) {

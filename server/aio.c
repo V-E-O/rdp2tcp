@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -86,7 +86,7 @@ void aio_kill_forward(aio_t *rio, aio_t *wio)
  * @param[in,out] rio aio_t structure associated with input buffer
  * @param[in] fd file descriptor
  * @param[in] name name of stream to be displayed on console
- * @param[in] callback function called data are received 
+ * @param[in] callback function called data are received
  * @param[in] ctx context passed as argument to callback function
  * @return -1 on error
  */
@@ -118,7 +118,7 @@ int aio_read(
 				return syserror("GetOverlappedResult");
 			}
 		}
-		
+
 		if (!len) {
 			ResetEvent(rio->io.hEvent);
 			return error("fd closed");
@@ -176,6 +176,11 @@ int aio_read(
 
 			case ERROR_BROKEN_PIPE:
 				info(0, "child process has closed pipe");
+				break;
+
+			// There is more data available than what fit into buffer.
+			case ERROR_MORE_DATA:
+				rio->pending = 1;
 				break;
 
 			default:
@@ -258,4 +263,3 @@ int aio_write(aio_t *wio, HANDLE fd, const char *name)
 
 	return 0;
 }
-

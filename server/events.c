@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,8 +51,9 @@ int event_add_tunnel(HANDLE evt, unsigned char id)
 	trace_evt("evt=%x, id=0x%02x", evt, id);
 
 	i = events_count;
-	if (i >= 0x101)
+	if (i >= 0x101) {
 		return -1;
+	}
 
 	all_events[i] = evt;
 	evtid_to_tunid[i] = id;
@@ -75,8 +76,9 @@ int event_add_process(HANDLE proc, HANDLE re, HANDLE we, unsigned char id)
 	trace_evt("proc=%x, revt=%x, wevt=%x, id=%u", proc, re, we, id);
 
 	i = events_count;
-	if (i+2 >= 0x101)
+	if (i+2 >= 0x101) {
 		return -1;
+	}
 
 	all_events[i] = proc;
 	all_events[i+1] = re; // read overlapped event
@@ -128,33 +130,36 @@ int event_wait(tunnel_t **out_tun, HANDLE *out_h)
 
 	off = (channel_write_pending() ? 0 : 1);
 
+	trace_evt("WaitForMultipleObjects: events_count=%i, offset=%i, events: %x", events_count, off, all_events[off]);
 	ret = WaitForMultipleObjects(events_count-off, &all_events[off], FALSE,
 											RDP2TCP_PING_DELAY*1000);
-	
+
 	if (ret == WAIT_FAILED) {
 		assert(GetLastError() != ERROR_INVALID_HANDLE);
 		return syserror("WaitForMultipleObjects");
 	}
 
-	if (ret == WAIT_TIMEOUT)
+	if (ret == WAIT_TIMEOUT) {
 		return EVT_PING;
+	}
 
 	ret -= WAIT_OBJECT_0;
 	trace_evt("off=%i --> 0x%x (evt=0x%x)", off, ret, all_events[off+ret]);
 
-	if (ret == 0)
+	if (ret == 0) {
 		return (off == 0 ? EVT_CHAN_WRITE : EVT_CHAN_READ);
-		
-	if ((ret == 1) && (off == 0))
+	}
+
+	if ((ret == 1) && (off == 0)) {
 		return EVT_CHAN_READ;
+	}
 
-		tun = tunnel_lookup(evtid_to_tunid[off+ret]);
-		if (!tun)
-			return error("invalid tunnel event 0x%02x", evtid_to_tunid[off+ret]);
+	tun = tunnel_lookup(evtid_to_tunid[off+ret]);
+	if (!tun) {
+		return error("invalid tunnel event 0x%02x", evtid_to_tunid[off+ret]);
+	}
 
-		*out_tun = tun;
-		*out_h   = all_events[off+ret];
-		return EVT_TUNNEL;
+	*out_tun = tun;
+	*out_h   = all_events[off+ret];
+	return EVT_TUNNEL;
 }
-
-

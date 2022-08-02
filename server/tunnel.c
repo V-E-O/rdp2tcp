@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -67,11 +67,9 @@ static unsigned char wsa_to_r2t_error(int err)
  */
 static unsigned char tunnel_generate_id(void)
 {
-	int ok;
 	unsigned char tid;
 	static unsigned char last_tid = 0xff;
 
-	ok = 1;
 	for (tid=last_tid+1; tid!=last_tid; ++tid) {
 		if (!tunnel_lookup(tid)) {
 			last_tid = tid;
@@ -140,18 +138,18 @@ static int tunnel_connect_event(tunnel_t *tun, int err)
 		tun->connected = 1;
 		info(0, "tunnel 0x%02x connected to %s", tun->id,
             netaddr_print(&tun->addr, host));
-      
+
 		if (!net_update_watch(&tun->sock, &tun->wio.buf)) {
 			if (iobuf_datalen(&tun->wio.buf) && (tunnel_socksend_event(tun) < 0))
 				err = 1;
 			if (!err)
 				ans_len = netaddr_to_connans(&tun->addr, &ans);
 		}
-		
+
 	} else {
 		ans.err = wsa_to_r2t_error(err);
 	}
-	
+
 	if (ans.err != R2TERR_SUCCESS) {
 		error("failed to connect tunnel 0x%02x (%i %s)", tun->id,
 				err, r2t_errors[ans.err]);
@@ -316,7 +314,7 @@ void tunnel_close(tunnel_t *tun)
 	trace_tun("id=0x%02x", tun->id);
 
 	list_del(&tun->list);
-	
+
 	event_del_tunnel(tun->id);
 
 	if (!tun->proc) {
@@ -422,7 +420,7 @@ static int tunnel_accept_event(tunnel_t *tun)
 	cli->id        = tid;
 	iobuf_init2(&cli->rio.buf, &cli->wio.buf, "tcp");
 	list_add_tail(&cli->list, &all_tunnels);
-	
+
 	msg_len = netaddr_to_connans(&addr, (r2tmsg_connans_t *)&msg);
 	msg.rid = tid;
 
@@ -456,7 +454,7 @@ int tunnel_event(tunnel_t *tun, HANDLE h)
 	trace_tun("id=0x%02x %s h=%x", tun->id, tun->proc ? "proc" : "tcp", h);
 
 	if (tun->proc) { // process tunnel
-		
+
 		if (h == tun->proc) { // process is dead
 			info(0, "tunnel 0x%02x process has terminated", tun->id);
 			return tunnel_close_event(tun);
@@ -532,7 +530,7 @@ int tunnel_write(tunnel_t *tun, const void *data, unsigned int len)
 {
 	unsigned int used;
 	iobuf_t *obuf;
-	
+
 	assert(valid_tunnel(tun) && data && len);
 	trace_tun("id=0x%02x, data=%p, len=%u, connected=%i",
 				tun->id, data, len, tun->connected);
