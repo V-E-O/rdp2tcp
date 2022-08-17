@@ -4,7 +4,7 @@
 
 rdp2tcp is a tunneling tool on top of remote desktop protocol (RDP).
 It uses RDP virtual channel capabilities to multiplex several ports
-forwarding over an already established rdesktop session.
+forwarding over an already established rdesktop or FreeRDP session.
 
 Available features:
  - tcp port forwarding
@@ -13,7 +13,7 @@ Available features:
  - SOCKS5 minimal support
 
 The code is splitted into 2 parts:
- - the client running on the rdesktop client side
+ - the client running on the rdesktop or FreeRDP client side
  - the server running on the Terminal Server side
 
 Once both rdp2tcp client and server are running, tunnels management is
@@ -96,10 +96,23 @@ simple command lines.
 ex: "rdp2tcp.py add forward LHOST LPORT RHOST RPORT"
 
 
+-[ client (FreeRDP side) ]--------------------
+
+In FreeRDP, rdp2tcp has been available since version 2.0.0 (released on
+2020-04-09). It can be used with the /rdp2tcp command-line parameter:
+
+    xfreerdp /u:myuser /v:myserver:3389 /rdp2tcp:/path/to/rdp2tcp/client/rdp2tcp
+
+After FreeRDP is started, it is possible to configure port forwarding by
+connecting to the controller and sending commands. This is similar as when
+using rdesktop. rdp2tcp.py (located in "tools" folder) can also be used to
+manage tunnels.
+
+
 -[ server (Terminal Server side) ]-------------
 
 Before starting the rdp2tcp server, you must be logged on the Terminal Server
-with one or more rdp2tcp clients attached to rdesktop.
+with one or more rdp2tcp clients attached to rdesktop or FreeRDP.
 
 The rdp2tcp server won't magically appear on the Terminal Server. So the
 rdp2tcp.exe executable must be first uploaded.
