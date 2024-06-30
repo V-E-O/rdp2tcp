@@ -1,4 +1,4 @@
-CC=i586-mingw32msvc-gcc
+CC=i686-w64-mingw32-gcc
 CFLAGS=-Wall -g \
 		 -D_WIN32_WINNT=0x0501 -DDEBUG
 OBJS=	iobuf.o print.o msgparser.o nethelper.o netaddr.o
