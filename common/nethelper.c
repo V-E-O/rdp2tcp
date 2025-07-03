@@ -43,7 +43,9 @@
 #define nethelper_error WSAGetLastError()
 #define nethelper_badsock INVALID_SOCKET
 #define close_sock(x) closesocket(x)
+#ifndef ENOMEM
 #define ENOMEM ERROR_NOT_ENOUGH_MEMORY
+#endif
 #define net_fd(s) ((s)->fd)
 
 /**
