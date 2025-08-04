@@ -45,7 +45,7 @@ def encode_debug(in_data, out_name):
 		if i == 20:
 			out += line + '\n'
 			i, line = 0, ''
-	
+
 	return out
 
 # VB encoder
@@ -65,8 +65,8 @@ def encode_vb(in_data, out_name):
 	while off < size:
 
 		avail = min(size - off, 32)
-		out += '.WriteText ' 
-		#out += 'x.WriteText ' 
+		out += '.WriteText '
+		#out += 'x.WriteText '
 		out += '&'.join('chr(%i)' % ord(b) for b in in_data[off:off+avail])
 		out += '\n'
 
@@ -111,7 +111,7 @@ def encode_xte(in_data, out, focus_delay=5.0, ksleep=1.0):
 
 			xsleep(0.050)
 			out.write('key %s\n' % byte2sym[byte])
-	
+
 	if word:
 		out.write('str %s\n' % word)
 
@@ -156,13 +156,13 @@ usage: %s [-x] [-f format] [-t delay] [-s coeff] <infile> <outfile>
 
 	try:
 		opts, args = getopt(argv[1:], 'hxf:t:s:', ['xte','format','delay','sleep'])
-	except GetoptError, err:
+	except GetoptError as err:
 		stderr.write('error: %s\n' % str(err))
 		exit(0)
-	
+
 	if len(args) != 2:
 		usage()
-	
+
 	for o, a in opts:
 
 		if o in ('-x','--xte'):
@@ -196,15 +196,15 @@ usage: %s [-x] [-f format] [-t delay] [-s coeff] <infile> <outfile>
 		else:
 			fin = open(args[0], 'rb')
 			out_name = path.basename(args[0]).replace('.','_')
-		
+
 		if args[1] == '-':
 			fout = stdout
 		else:
 			fout = open(args[1], 'wb')
 
-	except IOError, e:
+	except IOError as e:
 		stderr.write(str(e)+'\n')
-	
+
 	# read input
 
 	data_in = fin.read()
@@ -224,7 +224,7 @@ usage: %s [-x] [-f format] [-t delay] [-s coeff] <infile> <outfile>
 
 	elif fmt == 'base64':
 		data_out = data_in.encode('base64')
-	
+
 	elif fmt == 'vb':
 		data_out = encode_vb(data_in, out_name)
 

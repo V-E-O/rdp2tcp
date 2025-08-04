@@ -4,23 +4,26 @@ from random import randint
 from time import sleep
 from os import system
 
+
 def connect_to(host, port):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 	s.connect((host, port))
 	return s
 
+
 class R2TException(Exception):
 	pass
 
-server_type_names = {\
-	'ctrl':'controller',\
-	'tun':'tunnel',\
-	'rtun':'tunnel',\
-	's5':'socks5'
+
+server_type_names = {
+	'ctrl': 'controller',
+	'tun': 'tunnel',
+	'rtun': 'tunnel',
+	's5': 'socks5'
 }
 
-class R2TServer:
 
+class R2TServer:
 	def __init__(self, type, lhost, rhost=None, rev=False):
 		self.type    = type
 		self.lhost   = lhost
@@ -35,14 +38,16 @@ class R2TServer:
 			out += ' %s %s' % (self.reverse and '<--' or '-->', self.rhost)
 		return out
 
+
 class R2TClient:
 	def __init__(self, rhost):
 		self.rhost = rhost
+
 	def __str__(self):
 		return self.rhost
 
-class rdp2tcp:
 
+class rdp2tcp:
 	def __init__(self, host, port):
 		try:
 			s = connect_to(host, port)
@@ -79,6 +84,7 @@ class rdp2tcp:
 		self.sock.sendall(b'l\n')
 		return self.__read_answer(b'\n\n').decode('utf-8')
 
+
 if __name__ == '__main__':
 	from sys import argv, exit, stdin, stdout
 
@@ -96,7 +102,6 @@ commands:
    sh [args]""" % argv[0])
 		exit(0)
 
-	
 	def popup_telnet(x, type, dst):
 
 		laddr = ('127.0.0.1', randint(1025, 0xffff))
@@ -117,13 +122,12 @@ commands:
 		except R2TException as e:
 			print('error:', e)
 
-
 	argc = len(argv)
 	if argc < 2:
 		usage()
 
-	host,port = '127.0.0.1',8477
-	
+	host, port = '127.0.0.1', 8477
+
 	i = 1
 	while argv[i].startswith('-'):
 		if argv[i] == '-h':
@@ -133,7 +137,7 @@ commands:
 		i += 2
 
 	cmd = argv[i]
-	if cmd not in ('info','add','del','sh','telnet'):
+	if cmd not in ('info', 'add', 'del', 'sh', 'telnet'):
 		usage()
 
 	try:
@@ -141,23 +145,23 @@ commands:
 	except R2TException as e:
 		print('error: %s' % str(e))
 		exit(0)
-	
+
 	argc -= i + 1
 	if cmd == 'add':
 		argc -= 1
 		arg = argv[i+1]
 		if arg == 'forward' and argc == 4:
 			type = 't'
-			src,dst = (argv[i+2], int(argv[i+3])),(argv[i+4], int(argv[i+5]))
+			src, dst = (argv[i+2], int(argv[i+3])), (argv[i+4], int(argv[i+5]))
 		elif arg == 'reverse' and argc == 4:
 			type = 'r'
-			src,dst = (argv[i+2], int(argv[i+3])),(argv[i+4], int(argv[i+5]))
+			src, dst = (argv[i+2], int(argv[i+3])), (argv[i+4], int(argv[i+5]))
 		elif arg == 'process' and argc == 3:
 			type = 'x'
-			src,dst = (argv[i+2], int(argv[i+3])),(argv[i+4], 0)
+			src, dst = (argv[i+2], int(argv[i+3])), (argv[i+4], 0)
 		elif arg == 'socks5' and argc == 2:
 			type = 's'
-			src,dst = (argv[i+2], int(argv[i+3])),('', 0)
+			src, dst = (argv[i+2], int(argv[i+3])), ('', 0)
 		else:
 			usage()
 
@@ -167,7 +171,8 @@ commands:
 			print('error: %s' % str(e))
 
 	elif cmd == 'del':
-		if argc != 2: usage()
+		if argc != 2:
+			usage()
 
 		try:
 			print(r2t.del_tunnel((argv[i+1], int(argv[i+2]))))
@@ -189,4 +194,4 @@ commands:
 		popup_telnet(r2t, 't', (argv[i+1], int(argv[i+2])))
 
 	r2t.close()
-	
+

@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -150,8 +150,8 @@ static int dump_sockets(netsock_t *cli)
 				ret = controller_answer(cli, "ctrlcli %s", host1);
 				break;
 
-			case NETSOCK_TUNCLI:
-				if (!ns->state != NETSTATE_CONNECTED) {
+			case NETSOCK_TUNCLI: // Tunnel client side connection
+				if (!(ns->state != NETSTATE_CONNECTED)) {
 					ret = controller_answer(cli, "tuncli  %s tid=%hu",
 						host1, ns->tid);
 					break;
@@ -204,7 +204,7 @@ static char *extract_port(char *data, unsigned short *out_port)
 {
 	char *ptr, *end;
 	long port;
-	
+
 	ptr = strchr(data, ' ');
 	if (!ptr)
 		return NULL;
@@ -300,11 +300,11 @@ int controller_read_event(netsock_t *cli)
 
 				} else {
 					// commands with argc == 4
-					
+
 					rhost = data;
 					if (!extract_port(data, &rport))
 						return -1;
-					
+
 					if (cmd == 't') { // add TCP tunnel
 						ret = tunnel_add(cli, lhost, lport,
 												AF_UNSPEC, rhost, rport);
