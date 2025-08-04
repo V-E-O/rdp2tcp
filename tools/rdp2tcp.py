@@ -58,32 +58,31 @@ class rdp2tcp:
 	def close(self):
 		self.sock.close()
 
-	def __read_answer(self, end_marker='\n'):
-		data = ''
+	def __read_answer(self, end_marker=b'\n'):
+		data = b''
 		while True:
 			data += self.sock.recv(4096)
-			#print '['+ repr(data) + '] => ' + repr(end_marker)
+			#print('['+ repr(data) + '] => ' + repr(end_marker))
 			if end_marker in data:
 				break
-		if data.startswith('error: '):
+		if data.startswith(b'error: '):
 			raise R2TException(data[7:-1])
 
 		return data[:data.find(end_marker)]
 
 	def add_tunnel(self, type, src, dst):
-		msg = '%s %s %i %s' % (type, src[0], src[1], dst[0])
-		if type != 'x':
-			msg += ' %i' % dst[1]
-		self.sock.sendall(msg+'\n')
-		return self.__read_answer()
+		msg = ('%s %s %i %s' % (type, src[0], src[1], dst[0])).encode('utf-8')
+		if type != 'x': msg += b' %i' % dst[1]
+		self.sock.sendall(msg+b'\n')
+		return self.__read_answer().decode('utf-8')
 
 	def del_tunnel(self, src):
-		self.sock.sendall('- %s %i\n' % src)
-		return self.__read_answer()
+		self.sock.sendall(('- %s %i\n' % src).encode('utf-8'))
+		return self.__read_answer().decode('utf-8')
 
 	def info(self):
-		self.sock.sendall('l\n')
-		return self.__read_answer('\n\n')
+		self.sock.sendall(b'l\n')
+		return self.__read_answer(b'\n\n').decode('utf-8')
 
 
 if __name__ == '__main__':
